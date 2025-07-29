@@ -3,3 +3,9 @@ data/
 *.csv
 *.tsv
 *.xlsx
+
+#Ignorar archivos pyc
+*.pyc
+
+#Ignore egg-info
+*.egg-info/
