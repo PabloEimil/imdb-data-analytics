@@ -1,1 +1,5 @@
-
+# Ignorar datasets grandes
+data/
+*.csv
+*.tsv
+*.xlsx
