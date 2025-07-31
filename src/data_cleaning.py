@@ -4,7 +4,7 @@ import numpy as np
 
 def clean_name_basics(df: pd.DataFrame) -> pd.DataFrame:
     r""" 
-    Limpia el dataset name.basics.
+    Limpia el dataset name.basics:
     1. Convierte birthYear y deathYear en numero entero
     2. Elimina posibles espacios en primaryName
     3. Sustituye valores \N por unknown y las transforma en listas ya que tienen varios datos
@@ -43,10 +43,11 @@ def clean_name_basics(df: pd.DataFrame) -> pd.DataFrame:
 
 def clean_title_akas (df: pd.DataFrame) -> pd.DataFrame:
 
-    r""" Limpia el dataset title.akas.
+    r""" Limpia el dataset title.akas:
     1. Elimina columnas inecesarias
     2. Elimina posibles espacios
     3. Agrupa los titulos y las regiones en listas
+    4. Cambiamos nombres de columnas
     
     Parametros: 
         df: dataframe de name.basics cargado en data_loader
@@ -65,7 +66,7 @@ def clean_title_akas (df: pd.DataFrame) -> pd.DataFrame:
     #2
     for col in ["title", "region"]:
         if col in df.columns:
-            df[col].str.strip()
+            df[col]= df[col].str.strip()
 
     #3
     df= df.groupby("titleId").agg({
@@ -81,6 +82,49 @@ def clean_title_akas (df: pd.DataFrame) -> pd.DataFrame:
 
 def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
 
+    r"""Limpi el datase title_basics:
+    1. Quitamos posibles espacios en columnas de texto
+    2. Convierte columnas numericas a numeros y a nulos registros sin sentido
+    3. Convertimos a nulos registros con r"\N"
+    4. Convertimos a booleano la columna isAdult
+    5. Convertimos genres a lista
 
+    Parametros: 
+        df: dataframe de name.basics cargado en data_loader
+        
+    Output: 
+        df: Dataframe limpio y procesado.
+    """
 
+    df= df.copy()
+
+    df = df.drop_duplicates(subset="tconst")
+
+    #1
+    for col in ["titleType", "primaryTitle", "originalTitle"]:
+        if col in df.columns:
+            df[col]=df[col].str.strip()
+    
+    #2
+    for col in ["startYear", "endYear", "runtimeMinutes"]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
+
+    for col in ["startYear", "endYear"]:
+        if col in df.columns:
+            df.loc[(df[col] < 1850) | (df[col] > 2050), col] = pd.NA
+
+    #3
+    for col in ["primaryTitle", "originalTitle", "titleType","genres"]:
+        if col in df.columns:
+            df[col] = df[col].replace(r"\N", np.nan)
+    
+    #4
+    if "isAdult" in df.columns:
+        df["isAdult"] = df["isAdult"].replace(r"\N", 0).astype(int).astype(bool)
+    
+    #5
+    if "genres" in  df.columns:
+        df["genres"]= df["genres"].str.split(",")
+      
     return df
