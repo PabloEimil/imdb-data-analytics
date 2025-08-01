@@ -31,7 +31,7 @@ def clean_name_basics(df: pd.DataFrame) -> pd.DataFrame:
     #3
     for col in ["primaryProfession", "knownForTitles"]:
         if col in df.columns:
-            df[col] = df[col].replace(r"\N", np.nan).fillna("unknown").str.split(",")
+            df[col] = df[col].replace(r"\N", pd.NA).fillna("unknown").str.split(",")
 
     #4
     if "nconst" in df.columns:
@@ -43,14 +43,15 @@ def clean_name_basics(df: pd.DataFrame) -> pd.DataFrame:
 
 def clean_title_akas (df: pd.DataFrame) -> pd.DataFrame:
 
-    r""" Limpia el dataset title.akas:
+    r""" 
+    Limpia el dataset title.akas:
     1. Elimina columnas inecesarias
     2. Elimina posibles espacios
     3. Agrupa los titulos y las regiones en listas
     4. Cambiamos nombres de columnas
     
     Parametros: 
-        df: dataframe de name.basics cargado en data_loader
+        df: dataframe de title.akas cargado en data_loader
         
     Output: 
         df: Dataframe limpio y procesado.
@@ -82,7 +83,8 @@ def clean_title_akas (df: pd.DataFrame) -> pd.DataFrame:
 
 def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
 
-    r"""Limpi el datase title_basics:
+    r"""
+    Limpia el datase title_basics:
     1. Quitamos posibles espacios en columnas de texto
     2. Convierte columnas numericas a numeros y a nulos registros sin sentido
     3. Convertimos a nulos registros con r"\N"
@@ -90,7 +92,7 @@ def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
     5. Convertimos genres a lista
 
     Parametros: 
-        df: dataframe de name.basics cargado en data_loader
+        df: dataframe de title.basics cargado en data_loader
         
     Output: 
         df: Dataframe limpio y procesado.
@@ -117,7 +119,7 @@ def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
     #3
     for col in ["primaryTitle", "originalTitle", "titleType","genres"]:
         if col in df.columns:
-            df[col] = df[col].replace(r"\N", np.nan)
+            df[col] = df[col].replace(r"\N", pd.NA)
     
     #4
     if "isAdult" in df.columns:
@@ -127,4 +129,37 @@ def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
     if "genres" in  df.columns:
         df["genres"]= df["genres"].str.split(",")
       
+    return df
+
+
+def clean_title_principals (df: pd.DataFrame) -> pd.DataFrame:
+
+    r"""
+    Limpia el dataframe de title.principals.
+    1. Elimina la columna ordering
+    2. Crea los nulos y elimina posibles espacios
+    3. Si el job es igual a category se queda como nulo
+
+    Parametros: 
+        df: dataframe de title.basics cargado en data_loader
+        
+    Output: 
+        df: Dataframe limpio y procesado.
+    """
+
+    df= df.copy()
+
+    #1
+    if "ordering" in df.columns:
+        df= df.drop(columns= "ordering")
+
+    #2
+    for col in ["category","job", "characters"]:
+        if col in df.columns:
+            df[col]= df[col].replace(r"\N", pd.NA).str.strip()   
+
+    #3
+    if "job" in df.columns and "category" in df.columns:
+        df.loc[df["job"] == df["category"], "job"] = pd.NA
+       
     return df
