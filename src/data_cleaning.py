@@ -70,15 +70,18 @@ def clean_title_akas (df: pd.DataFrame) -> pd.DataFrame:
             df[col]= df[col].str.strip()
 
     #3
-    df= df.groupby("titleId").agg({
-        "title": lambda x: sorted(set(t for t in x if t!= "\\N" and pd.notna(t))), 
-        "region":lambda x: sorted(set(t for t in x if t!= "\\N" and pd.notna(t)))
-        }).reset_index()
+    df = df.replace(r"\\N", pd.NA)
+
+    grouped = df.groupby("titleId").agg({
+        "title": lambda x: [v for v in x.dropna().unique()],
+        "region": lambda x: [v for v in x.dropna().unique()]
+    }).reset_index()
 
     #4
-    df= df.rename(columns= {"title": "titlesList", "region":"regionList"})
+    grouped["title"] = grouped["title"].apply(sorted)
+    grouped["region"] = grouped["region"].apply(sorted)
 
-    return df
+    return grouped.rename(columns={"title": "titlesList", "region": "regionList"})
 
 
 def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
@@ -128,6 +131,8 @@ def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
     #5
     if "genres" in  df.columns:
         df["genres"]= df["genres"].str.split(",")
+
+    df= df[df["titleType"] != "tvEpisode"]
       
     return df
 

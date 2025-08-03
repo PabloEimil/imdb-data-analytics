@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 from src.data_loader import load_imdb_data
 
 
@@ -26,7 +27,7 @@ def create_episode_df (df: pd.DataFrame) -> pd.DataFrame:
     final_df = merged_df[[
         "tconst", "parentTconst", "seasonNumber", "episodeNumber",
         "primaryTitle", "startYear", "runtimeMinutes"
-    ]]
+    ]].copy()
 
     #4
     for col in ["seasonNumber", "episodeNumber"]:

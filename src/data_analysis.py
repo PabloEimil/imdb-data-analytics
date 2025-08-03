@@ -5,9 +5,11 @@ def resumen_df(df: pd.DataFrame) -> pd.DataFrame:
     Muestra informacion básica del df 
     """
     n_filas, n_columnas = df.shape
-    duplicadas = df.duplicated().sum()
+    try:
+        duplicadas = df.duplicated().sum()
+    except TypeError:
+        duplicadas = df.astype(str).duplicated().sum()
     nulos_totales = df.isnull().sum().sum()
-
     print(f"🔵Resumen del dataset:")
     print(f"  🔸Filas: {n_filas}")
     print(f"  🔸Columnas: {n_columnas}")
@@ -21,7 +23,10 @@ def resumen_df(df: pd.DataFrame) -> pd.DataFrame:
         print("\n🔵Nulos por columna (%):")
         print((nulos_columna / len(df) * 100).round(2).astype(str) + "%")
     print("\n🔵Valores únicos por columna:")
-    print(df.nunique())
+    try:
+        print(df.nunique())
+    except TypeError:
+        print(df.astype(str).nunique())
     display(df.head())
 
 
