@@ -88,11 +88,12 @@ def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
 
     r"""
     Limpia el datase title_basics:
-    1. Quitamos posibles espacios en columnas de texto
-    2. Convierte columnas numericas a numeros y a nulos registros sin sentido
-    3. Convertimos a nulos registros con r"\N"
-    4. Convertimos a booleano la columna isAdult
-    5. Convertimos genres a lista
+    1. Eliminamos las titleType que no usaremos.
+    2. Quitamos posibles espacios en columnas de texto
+    3. Convierte columnas numericas a numeros y a nulos registros sin sentido
+    4. Convertimos a nulos registros con r"\N"
+    5. Convertimos a booleano la columna isAdult
+    6. Convertimos genres a lista
 
     Parametros: 
         df: dataframe de title.basics cargado en data_loader
@@ -106,11 +107,15 @@ def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
     df = df.drop_duplicates(subset="tconst")
 
     #1
+    excluded_types = ["video", "videoGame", "tvPilot", "tvSpecial"]
+    df = df[~df["titleType"].isin(excluded_types)].copy()
+
+    #2
     for col in ["titleType", "primaryTitle", "originalTitle"]:
         if col in df.columns:
             df[col]=df[col].str.strip()
     
-    #2
+    #3
     for col in ["startYear", "endYear", "runtimeMinutes"]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
@@ -119,16 +124,16 @@ def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
         if col in df.columns:
             df.loc[(df[col] < 1850) | (df[col] > 2050), col] = pd.NA
 
-    #3
+    #4
     for col in ["primaryTitle", "originalTitle", "titleType","genres"]:
         if col in df.columns:
             df[col] = df[col].replace(r"\N", pd.NA)
     
-    #4
+    #5
     if "isAdult" in df.columns:
         df["isAdult"] = df["isAdult"].replace(r"\N", 0).astype(int).astype(bool)
     
-    #5
+    #6
     if "genres" in  df.columns:
         df["genres"]= df["genres"].str.split(",")
 
