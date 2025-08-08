@@ -31,7 +31,11 @@ def clean_name_basics(df: pd.DataFrame) -> pd.DataFrame:
     #3
     for col in ["primaryProfession", "knownForTitles"]:
         if col in df.columns:
-            df[col] = df[col].replace(r"\N", pd.NA).fillna("unknown").str.split(",")
+            df[col] = (
+                df[col]
+                .replace(r"\N", pd.NA)
+                .apply(lambda x: x.split(",") if isinstance(x, str) else ["unknown"])
+            )
 
     #4
     if "nconst" in df.columns:
@@ -134,8 +138,10 @@ def clean_title_basics (df: pd.DataFrame) -> pd.DataFrame:
         df["isAdult"] = df["isAdult"].replace(r"\N", 0).astype(int).astype(bool)
     
     #6
-    if "genres" in  df.columns:
-        df["genres"]= df["genres"].str.split(",")
+    if "genres" in df.columns:
+        df["genres"] = df["genres"].apply(
+            lambda x: x.split(",") if isinstance(x, str) else pd.NA
+        )
 
     df= df[df["titleType"] != "tvEpisode"]
       

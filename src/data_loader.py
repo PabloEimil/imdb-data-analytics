@@ -16,3 +16,9 @@ def load_imdb_data_csv(filename: str):
     file_path = os.path.join(get_project_root(), "data", "processed", filename)
     df = pd.read_csv(file_path)
     return df
+
+def load_pkl(filename: str):
+    """Devuelve el archivo en una variable de pandas"""
+    file_path = os.path.join(get_project_root(), "data", "processed", filename)
+    df = pd.read_pickle(file_path)
+    return df

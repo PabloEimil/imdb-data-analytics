@@ -3,6 +3,7 @@ data/
 *.csv
 *.tsv
 *.xlsx
+*.pkl
 
 #Ignorar archivos pyc
 *.pyc
