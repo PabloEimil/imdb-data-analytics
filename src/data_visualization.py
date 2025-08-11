@@ -137,5 +137,77 @@ def valor_num_gen_relation_plot (df: pd.DataFrame):
     ax1.set_facecolor("#E8F1FA")
     plt.show()
 
+
+
+def mov_year_plot (df: pd.DataFrame):
+
+    df= df.groupby("startYear").size().reset_index(name="count")
+    df = df[df["startYear"] != 2025]
+
+    plt.figure(figsize=(12,6))
+    plt.plot(df["startYear"], df["count"], linewidth=3, color="#4094E3")
+    plt.title("Número de películas por año", fontweight="bold")
+    plt.xlabel("Año de estreno")
+    plt.ylabel("Cantidad de películas")
+    plt.grid(True, linestyle="--", alpha=0.3)
+    plt.gca().set_facecolor("#E8F1FA")
+    plt.show()
+
+
+
+def rat_year_plot (df: pd.DataFrame):
+
+    df= df.groupby("startYear")["averageRating"].mean().reset_index()
+    df= df[df["startYear"].between(1912, 2024)]
+    df["rolling_mean"] = df["averageRating"].rolling(window=5).mean()
+
+    plt.figure(figsize=(12,6))
+    plt.plot(df["startYear"], df["rolling_mean"], linewidth=3, color="#4094E3")
+    plt.title("Evolución de la valoración por año", fontweight="bold")
+    plt.xlabel("Año de estreno")
+    plt.ylabel("Valoración promedio (1-10)")
+    plt.grid(True, linestyle="--", alpha=0.3)
+    plt.gca().set_facecolor("#E8F1FA")
+    plt.show()
+
+
+
+def gen_year_plot (df: pd.DataFrame):
+
+    df= df.explode("genres")
+    df= df.groupby(["startYear", "genres"]).size().reset_index(name="num_titles")
+    df=df[df["startYear"].between(1950,2024)]
+    top_df= df.groupby("genres")["num_titles"].sum().sort_values(ascending=False).head(8).index
+
+    pivot = df.pivot(index="startYear", columns="genres", values="num_titles").fillna(0)
+    pivot_top = pivot[top_df]
+    pivot_top_smooth = pivot_top.rolling(window=2, min_periods=1).mean()
+    pivot_top_smooth.plot.area(figsize=(14,8), alpha=0.6)
+
+    plt.title("Popularidad del TOP 8 géneros a lo largo del tiempo", fontweight="bold")
+    plt.ylabel("Número de títulos lanzados")
+    plt.xlabel("Año")
+    plt.grid(True, axis= "x", linestyle="--", alpha=0.3)
+    plt.gca().set_facecolor("#E8F1FA")
+    plt.show()
+
+
+
+def dur_year_plot (df: pd.DataFrame):
+    df= (df.groupby("startYear")["runtimeMinutes"].mean().reset_index().sort_values("startYear"))
+    df= df[df["startYear"].between(1950, 2024)]
+
+    plt.figure(figsize=(10,6))
+    plt.fill_between(df["startYear"], df["runtimeMinutes"], color="skyblue", alpha=0.4)
+    plt.plot(df["startYear"], df["runtimeMinutes"], color="#4094E3")
+    plt.xlabel("Año de estreno")
+    plt.ylabel("Duración promedio")
+    plt.title("Evolución de la duración promedio de películas por año", fontweight="bold")
+    plt.ylim(60, df["runtimeMinutes"].max() * 1.10)
+    plt.gca().set_facecolor("#E8F1FA")
+    plt.grid(True, alpha= 0.3)
+    plt.show()
+
+    
 # AQUI IRAN FORMULAS PARA LA VISUALIZACIÓN
 
